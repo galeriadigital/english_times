@@ -2,12 +2,18 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Los 12 Tiempos del Inglés - Guía de Estudio</title>
+    <title>Generador Dinámico de los 12 Tiempos del Inglés</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 15px; color: #333; line-height: 1.3; }
-        h1 { text-align: center; color: #2c3e50; font-size: 22px; margin-bottom: 5px; }
-        h2 { color: #34495e; border-bottom: 2px solid #3498db; padding-bottom: 5px; margin-top: 25px; font-size: 16px; }
-        p.subtitle { text-align: center; color: #7f8c8d; margin-bottom: 20px; font-size: 13px; }
+        body { font-family: Arial, sans-serif; margin: 20px; color: #333; line-height: 1.3; background-color: #f4f6f7; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; font-size: 24px; margin-bottom: 5px; }
+        p.subtitle { text-align: center; color: #7f8c8d; margin-bottom: 20px; font-size: 14px; }
+        
+        .control-box { background: #ecf0f1; padding: 15px; border-radius: 6px; margin-bottom: 20px; display: flex; gap: 15px; align-items: center; justify-content: center; flex-wrap: wrap; }
+        .control-box input, .control-box select, .control-box button { padding: 8px 12px; font-size: 14px; border: 1px solid #bdc3c7; border-radius: 4px; }
+        .control-box button { background: #2980b9; color: white; border: none; cursor: pointer; font-weight: bold; }
+        .control-box button:hover { background: #2471a3; }
+
         table { width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 11px; }
         th, td { border: 1px solid #bdc3c7; padding: 6px 8px; text-align: left; vertical-align: top; }
         th { background-color: #2c3e50; color: white; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px; }
@@ -17,12 +23,80 @@
 </head>
 <body>
 
-    <h1>Guía Definitiva: Los 12 Tiempos del Inglés</h1>
-    <p class="subtitle">Estructuras, Reglas Clave y Elementos Esenciales Resaltados en Naranja</p>
+<div class="container">
+    <h1>Generador Dinámico de los 12 Tiempos del Inglés</h1>
+    <p class="subtitle">Escribe un verbo en inglés, selecciona su tipo y observa cómo cambian los 12 tiempos automáticamente.</p>
 
-    <!-- TABLA 1: VERBO REGULAR -->
-    <h2>Tabla 1: Verbo Regular (Work / Worked / Worked)</h2>
-    <table>
+    <div class="control-box">
+        <div>
+            <label for="verbInput"><strong>Verbo (Base):</strong></label>
+            <input type="text" id="verbInput" value="work" placeholder="ej. play, write, go">
+        </div>
+        <div>
+            <label for="verbType"><strong>Tipo:</strong></label>
+            <select id="verbType">
+                <option value="regular">Regular</option>
+                <option value="irregular">Irregular</option>
+            </select>
+        </div>
+        <div>
+            <label for="pastForm"><strong>Pasado (si es irregular):</strong></label>
+            <input type="text" id="pastForm" value="worked" placeholder="ej. ate, wrote">
+        </div>
+        <div>
+            <label for="partForm"><strong>Participio (si es irregular):</strong></label>
+            <input type="text" id="partForm" value="worked" placeholder="ej. eaten, written">
+        </div>
+        <button onclick="generateTable()">Generar Tiempos</button>
+    </div>
+
+    <div id="tableContainer">
+        <!-- La tabla se generará dinámicamente aquí -->
+    </div>
+</div>
+
+<script>
+// Base de datos rápida para algunos irregulares comunes si el usuario quiere probar
+const irregulars = {
+    "eat": { past: "ate", part: "eaten", trad: "comer fruta" },
+    "go": { past: "went", part: "gone", trad: "ir a casa" },
+    "write": { past: "wrote", part: "written", trad: "escribir una carta" },
+    "play": { past: "played", part: "played", trad: "jugar fútbol" }
+};
+
+document.getElementById('verbInput').addEventListener('input', function(e) {
+    let v = e.target.value.toLowerCase().trim();
+    if(irregulars[v]) {
+        document.getElementById('verbType').value = "irregular";
+        document.getElementById('pastForm').value = irregulars[v].past;
+        document.getElementById('partForm').value = irregulars[v].part;
+    } else {
+        document.getElementById('verbType').value = "regular";
+        document.getElementById('pastForm').value = v + "ed";
+        document.getElementById('partForm').value = v + "ed";
+    }
+});
+
+function generateTable() {
+    let v = document.getElementById('verbInput').value.trim() || "work";
+    let type = document.getElementById('verbType').value;
+    let past = document.getElementById('pastForm').value.trim();
+    let part = document.getElementById('partForm').value.trim();
+
+    if(type === 'regular') {
+        past = v + "ed";
+        part = v + "ed";
+    }
+
+    let ing = v.endsWith('e') ? v.slice(0, -1) + "ing" : v + "ing";
+    let thirdS = v + "s";
+    if(v.endsWith('y') && !['a','e','i','o','u'].includes(v[v.length-2])) {
+        thirdS = v.slice(0, -1) + "ies";
+    } else if(v.endsWith('s') || v.endsWith('sh') || v.endsWith('ch') || v.endsWith('x') || v.endsWith('o')) {
+        thirdS = v + "es";
+    }
+
+    let html = `<table>
         <thead>
             <tr>
                 <th>Tiempo</th>
@@ -33,220 +107,135 @@
                 <th>Traducción (3ª)</th>
             </tr>
         </thead>
-        <tbody>
-            <tr>
-                <td><strong>1. Presente Simple</strong></td>
-                <td>Usa <span class="key-word">do</span> / <span class="key-word">does</span>. 3ª persona lleva <span class="key-word">-s</span>.</td>
-                <td>I work every day.<br>I <span class="key-word">don't</span> work.<br><span class="key-word">Do</span> you work?</td>
-                <td>Trabajo todos los días.<br>No trabajo.<br>¿Trabajas?</td>
-                <td>He work<span class="key-word">s</span> every day.<br>He <span class="key-word">doesn't</span> work.<br><span class="key-word">Does</span> he work?</td>
-                <td>Él trabaja todos los días.<br>Él no trabaja.<br>¿Trabaja él?</td>
-            </tr>
-            <tr>
-                <td><strong>2. Pasado Simple</strong></td>
-                <td>Usa <span class="key-word">did</span> universal. Verbo en pasado solo en afirmativa.</td>
-                <td>I worked yesterday.<br>I <span class="key-word">didn't</span> work.<br><span class="key-word">Did</span> you work?</td>
-                <td>Trabajé ayer.<br>No trabajé.<br>¿Trabajaste?</td>
-                <td>He worked yesterday.<br>He <span class="key-word">didn't</span> work.<br><span class="key-word">Did</span> he work?</td>
-                <td>Él trabajó ayer.<br>Él no trabajó.<br>¿Trabajó él?</td>
-            </tr>
-            <tr>
-                <td><strong>3. Futuro Simple</strong></td>
-                <td>Usa <span class="key-word">will</span> para todas las personas sin excepción.</td>
-                <td>I <span class="key-word">will</span> work tomorrow.<br>I <span class="key-word">won't</span> work.<br><span class="key-word">Will</span> you work?</td>
-                <td>Trabajaré mañana.<br>No trabajaré.<br>¿Trabajarás?</td>
-                <td>He <span class="key-word">will</span> work tomorrow.<br>He <span class="key-word">won't</span> work.<br><span class="key-word">Will</span> he work?</td>
-                <td>Él trabajará mañana.<br>Él no trabajará.<br>¿Trabajará él?</td>
-            </tr>
-            <tr>
-                <td><strong>4. Presente Continuo</strong></td>
-                <td>Verbo <em>be</em> (<span class="key-word">am/is/are</span>) + verbo con <span class="key-word">-ing</span>.</td>
-                <td>I <span class="key-word">am</span> working.<br>I <span class="key-word">aren't</span> / <span class="key-word">'m not</span>.<br><span class="key-word">Are</span> you working?</td>
-                <td>Estoy trabajando ahora.<br>No estoy.<br>¿Estás trabajando?</td>
-                <td>He <span class="key-word">is</span> working.<br>He <span class="key-word">isn't</span> working.<br><span class="key-word">Is</span> he working?</td>
-                <td>Él está trabajando.<br>Él no está.<br>¿Está él trabajando?</td>
-            </tr>
-            <tr>
-                <td><strong>5. Pasado Continuo</strong></td>
-                <td>Verbo <em>be</em> pasado (<span class="key-word">was/were</span>) + verbo con <span class="key-word">-ing</span>.</td>
-                <td>I <span class="key-word">was</span> working.<br>I <span class="key-word">wasn't</span> working.<br><span class="key-word">Were</span> you working?</td>
-                <td>Estaba trabajando.<br>No estaba.<br>¿Estabas?</td>
-                <td>He <span class="key-word">was</span> working.<br>He <span class="key-word">wasn't</span> working.<br><span class="key-word">Was</span> he working?</td>
-                <td>Él estaba trabajando.<br>Él no estaba.<br>¿Estaba él?</td>
-            </tr>
-            <tr>
-                <td><strong>6. Futuro Continuo</strong></td>
-                <td>Futuro <span class="key-word">will</span> + puente <span class="key-word">be</span> + verbo con <span class="key-word">-ing</span>.</td>
-                <td>I <span class="key-word">will be</span> working.<br>I <span class="key-word">won't be</span> working.<br><span class="key-word">Will</span> you <span class="key-word">be</span> working?</td>
-                <td>Estaré trabajando.<br>No estaré.<br>¿Estarás?</td>
-                <td>He <span class="key-word">will be</span> working.<br>He <span class="key-word">won't be</span> working.<br><span class="key-word">Will</span> he <span class="key-word">be</span> working?</td>
-                <td>Él estará trabajando.<br>Él no estará.<br>¿Estará él?</td>
-            </tr>
-            <tr>
-                <td><strong>7. Presente Perfecto</strong></td>
-                <td>Motor <span class="key-word">have / has</span> + verbo en <span class="key-word">participio</span>.</td>
-                <td>I <span class="key-word">have</span> worked before.<br>I <span class="key-word">haven't</span> worked.<br><span class="key-word">Have</span> you worked?</td>
-                <td>He trabajado antes.<br>No he trabajado.<br>¿Has trabajado?</td>
-                <td>He <span class="key-word">has</span> worked before.<br>He <span class="key-word">hasn't</span> worked.<br><span class="key-word">Has</span> he worked?</td>
-                <td>Él ha trabajado antes.<br>Él no ha trabajado.<br>¿Ha trabajado él?</td>
-            </tr>
-            <tr>
-                <td><strong>8. Pasado Perfecto</strong></td>
-                <td>Motor <span class="key-word">had</span> universal + verbo en <span class="key-word">participio</span>.</td>
-                <td>I <span class="key-word">had</span> worked.<br>I <span class="key-word">hadn't</span> worked.<br><span class="key-word">Had</span> you worked?</td>
-                <td>Había trabajado antes.<br>No había.<br>¿Habías trabajado?</td>
-                <td>He <span class="key-word">had</span> worked.<br>He <span class="key-word">hadn't</span> worked.<br><span class="key-word">Had</span> he worked?</td>
-                <td>Él había trabajado antes.<br>Él no había.<br>¿Había él trabajado?</td>
-            </tr>
-            <tr>
-                <td><strong>9. Futuro Perfecto</strong></td>
-                <td>Futuro <span class="key-word">will have</span> + verbo en <span class="key-word">participio</span>.</td>
-                <td>I <span class="key-word">will have</span> worked.<br>I <span class="key-word">won't have</span> worked.<br><span class="key-word">Will</span> you <span class="key-word">have</span> worked?</td>
-                <td>Habré trabajado.<br>No habré.<br>¿Habrás trabajado?</td>
-                <td>He <span class="key-word">will have</span> worked.<br>He <span class="key-word">won't have</span> worked.<br><span class="key-word">Will</span> he <span class="key-word">have</span> worked?</td>
-                <td>Él habrá trabajado.<br>Él no habrá.<br>¿Habrá él trabajado?</td>
-            </tr>
-            <tr>
-                <td><strong>10. Pres. Perf. Cont.</strong></td>
-                <td>Perfecto (<span class="key-word">have/has</span>) + puente <span class="key-word">been</span> + <span class="key-word">-ing</span>.</td>
-                <td>I <span class="key-word">have been</span> working.<br>I <span class="key-word">haven't been</span> working.<br><span class="key-word">Have</span> you <span class="key-word">been</span> working?</td>
-                <td>He estado trabajando.<br>No he estado.<br>¿Has estado?</td>
-                <td>He <span class="key-word">has been</span> working.<br>He <span class="key-word">hasn't been</span> working.<br><span class="key-word">Has</span> he <span class="key-word">been</span> working?</td>
-                <td>Él ha estado trabajando.<br>Él no ha estado.<br>¿Ha estado él?</td>
-            </tr>
-            <tr>
-                <td><strong>11. Pas. Perf. Cont.</strong></td>
-                <td>Pasado perfecto (<span class="key-word">had</span>) + puente <span class="key-word">been</span> + <span class="key-word">-ing</span>.</td>
-                <td>I <span class="key-word">had been</span> working.<br>I <span class="key-word">hadn't been</span> working.<br><span class="key-word">Had</span> you <span class="key-word">been</span> working?</td>
-                <td>Había estado trabajando.<br>No había estado.<br>¿Habías estado?</td>
-                <td>He <span class="key-word">had been</span> working.<br>He <span class="key-word">hadn't been</span> working.<br><span class="key-word">Had</span> he <span class="key-word">been</span> working?</td>
-                <td>Él había estado trabajando.<br>Él no había estado.<br>¿Había él estado?</td>
-            </tr>
-            <tr>
-                <td><strong>12. Fut. Perf. Cont.</strong></td>
-                <td>Futuro perfecto (<span class="key-word">will have</span>) + puente <span class="key-word">been</span> + <span class="key-word">-ing</span>.</td>
-                <td>I <span class="key-word">will have been</span> working.<br>I <span class="key-word">won't have been</span> working.<br><span class="key-word">Will</span> you <span class="key-word">have been</span> working?</td>
-                <td>Habré estado trabajando.<br>No habré estado.<br>¿Habrás estado?</td>
-                <td>He <span class="key-word">will have been</span> working.<br>He <span class="key-word">won't have been</span> working.<br><span class="key-word">Will</span> he <span class="key-word">have been</span> working?</td>
-                <td>Él habrá estado trabajando.<br>Él no habrá estado.<br>¿Habrá él estado?</td>
-            </tr>
-        </tbody>
-    </table>
+        <tbody>`;
 
-    <div style="page-break-after: always;"></div>
+    // 1. Presente Simple
+    html += `<tr>
+        <td><strong>1. Presente Simple</strong></td>
+        <td>Usa <span class="key-word">do/does</span>. 3ª persona lleva <span class="key-word">-s</span>.</td>
+        <td>I ${v} now.<br>I <span class="key-word">don't</span> ${v}.<br><span class="key-word">Do</span> you ${v}?</td>
+        <td>Yo ${v} ahora.<br>No ${v}.<br>¿Tú ${v}?</td>
+        <td>He ${thirdS}.<br>He <span class="key-word">doesn't</span> ${v}.<br><span class="key-word">Does</span> he ${v}?</td>
+        <td>Él ${v}.<br>Él no ${v}.<br>¿Él ${v}?</td>
+    </tr>`;
 
-    <!-- TABLA 2: VERBO IRREGULAR -->
-    <h2>Tabla 2: Verbo Irregular (Eat / Ate / Eaten)</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Tiempo</th>
-                <th>Regla Clave</th>
-                <th>1ª Persona (I)</th>
-                <th>Traducción (1ª)</th>
-                <th>3ª Persona (He)</th>
-                <th>Traducción (3ª)</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td><strong>1. Presente Simple</strong></td>
-                <td>Usa <span class="key-word">do/does</span>. 3ª persona añade <span class="key-word">-s</span> (*eats*).</td>
-                <td>I eat fruit.<br>I <span class="key-word">don't</span> eat fruit.<br><span class="key-word">Do</span> you eat fruit?</td>
-                <td>Como fruta.<br>No como fruta.<br>¿Comes fruta?</td>
-                <td>He eat<span class="key-word">s</span> fruit.<br>He <span class="key-word">doesn't</span> eat.<br><span class="key-word">Does</span> he eat?</td>
-                <td>Él come fruta.<br>Él no come fruta.<br>¿Come él fruta?</td>
-            </tr>
-            <tr>
-                <td><strong>2. Pasado Simple</strong></td>
-                <td>Usa <span class="key-word">did</span> para negar/preguntar. Afirmativa cambia (<span class="key-word">ate</span>).</td>
-                <td>I <span class="key-word">ate</span> fruit.<br>I <span class="key-word">didn't</span> eat fruit.<br><span class="key-word">Did</span> you eat fruit?</td>
-                <td>Comí fruta.<br>No comí fruta.<br>¿Comiste fruta?</td>
-                <td>He <span class="key-word">ate</span> fruit.<br>He <span class="key-word">didn't</span> eat fruit.<br><span class="key-word">Did</span> he eat fruit?</td>
-                <td>Él comió fruta.<br>Él no comió fruta.<br>¿Comió él fruta?</td>
-            </tr>
-            <tr>
-                <td><strong>3. Futuro Simple</strong></td>
-                <td>Usa <span class="key-word">will</span> universal + verbo base.</td>
-                <td>I <span class="key-word">will</span> eat fruit.<br>I <span class="key-word">won't</span> eat fruit.<br><span class="key-word">Will</span> you eat fruit?</td>
-                <td>Comeré fruta.<br>No comeré.<br>¿Comerás fruta?</td>
-                <td>He <span class="key-word">will</span> eat fruit.<br>He <span class="key-word">won't</span> eat fruit.<br><span class="key-word">Will</span> he eat fruit?</td>
-                <td>Él comerá fruta.<br>Él no comerá.<br>¿Comerá él fruta?</td>
-            </tr>
-            <tr>
-                <td><strong>4. Presente Continuo</strong></td>
-                <td>Verbo <em>be</em> (<span class="key-word">am/is/are</span>) + verbo con <span class="key-word">-ing</span> (*eating*).</td>
-                <td>I <span class="key-word">am</span> eating.<br>I <span class="key-word">aren't</span> / <span class="key-word">'m not</span> eating.<br><span class="key-word">Are</span> you eating?</td>
-                <td>Estoy comiendo.<br>No estoy comiendo.<br>¿Estás comiendo?</td>
-                <td>He <span class="key-word">is</span> eating.<br>He <span class="key-word">isn't</span> eating.<br><span class="key-word">Is</span> he eating?</td>
-                <td>Él está comiendo.<br>Él no está comiendo.<br>¿Está él comiendo?</td>
-            </tr>
-            <tr>
-                <td><strong>5. Pasado Continuo</strong></td>
-                <td>Verbo <em>be</em> pasado (<span class="key-word">was/were</span>) + verbo con <span class="key-word">-ing</span>.</td>
-                <td>I <span class="key-word">was</span> eating.<br>I <span class="key-word">wasn't</span> eating.<br><span class="key-word">Were</span> you eating?</td>
-                <td>Estaba comiendo.<br>No estaba comiendo.<br>¿Estabas comiendo?</td>
-                <td>He <span class="key-word">was</span> eating.<br>He <span class="key-word">wasn't</span> eating.<br><span class="key-word">Was</span> he eating?</td>
-                <td>Él estaba comiendo.<br>Él no estaba comiendo.<br>¿Estaba él comiendo?</td>
-            </tr>
-            <tr>
-                <td><strong>6. Futuro Continuo</strong></td>
-                <td>Futuro <span class="key-word">will be</span> + verbo principal con <span class="key-word">-ing</span>.</td>
-                <td>I <span class="key-word">will be</span> eating.<br>I <span class="key-word">won't be</span> eating.<br><span class="key-word">Will</span> you <span class="key-word">be</span> eating?</td>
-                <td>Estaré comiendo.<br>No estaré comiendo.<br>¿Estarás comiendo?</td>
-                <td>He <span class="key-word">will be</span> eating.<br>He <span class="key-word">won't be</span> eating.<br><span class="key-word">Will</span> he <span class="key-word">be</span> eating?</td>
-                <td>Él estará comiendo.<br>Él no estará comiendo.<br>¿Estará él comiendo?</td>
-            </tr>
-            <tr>
-                <td><strong>7. Presente Perfecto</strong></td>
-                <td>Motor <span class="key-word">have/has</span> + verbo en <span class="key-word">participio</span> (<span class="key-word">eaten</span>).</td>
-                <td>I <span class="key-word">have</span> eaten.<br>I <span class="key-word">haven't</span> eaten.<br><span class="key-word">Have</span> you eaten?</td>
-                <td>He comido.<br>No he comido.<br>¿Has comido?</td>
-                <td>He <span class="key-word">has</span> eaten.<br>He <span class="key-word">hasn't</span> eaten.<br><span class="key-word">Has</span> he eaten?</td>
-                <td>Él ha comido.<br>Él no ha comido.<br>¿Ha comido él?</td>
-            </tr>
-            <tr>
-                <td><strong>8. Pasado Perfecto</strong></td>
-                <td>Motor <span class="key-word">had</span> + participio (<span class="key-word">eaten</span>).</td>
-                <td>I <span class="key-word">had</span> eaten.<br>I <span class="key-word">hadn't</span> eaten.<br><span class="key-word">Had</span> you eaten?</td>
-                <td>Había comido.<br>No había comido.<br>¿Habías comido?</td>
-                <td>He <span class="key-word">had</span> eaten.<br>He <span class="key-word">hadn't</span> eaten.<br><span class="key-word">Had</span> he eaten?</td>
-                <td>Él había comido.<br>Él no había comido.<br>¿Había él comido?</td>
-            </tr>
-            <tr>
-                <td><strong>9. Futuro Perfecto</strong></td>
-                <td>Futuro <span class="key-word">will have</span> + participio (<span class="key-word">eaten</span>).</td>
-                <td>I <span class="key-word">will have</span> eaten.<br>I <span class="key-word">won't have</span> eaten.<br><span class="key-word">Will</span> you <span class="key-word">have</span> eaten?</td>
-                <td>Habré comido.<br>No habré comido.<br>¿Habrás comido?</td>
-                <td>He <span class="key-word">will have</span> eaten.<br>He <span class="key-word">won't have</span> eaten.<br><span class="key-word">Will</span> he <span class="key-word">have</span> eaten?</td>
-                <td>Él habrá comido.<br>Él no habrá comido.<br>¿Habrá él comido?</td>
-            </tr>
-            <tr>
-                <td><strong>10. Pres. Perf. Cont.</strong></td>
-                <td>Perfecto (<span class="key-word">have/has</span>) + puente <span class="key-word">been</span> + <span class="key-word">-ing</span>.</td>
-                <td>I <span class="key-word">have been</span> eating.<br>I <span class="key-word">haven't been</span> eating.<br><span class="key-word">Have</span> you <span class="key-word">been</span> eating?</td>
-                <td>He estado comiendo.<br>No he estado comiendo.<br>¿Has estado comiendo?</td>
-                <td>He <span class="key-word">has been</span> eating.<br>He <span class="key-word">hasn't been</span> eating.<br><span class="key-word">Has</span> he <span class="key-word">been</span> eating?</td>
-                <td>Él ha estado comiendo.<br>Él no ha estado.<br>¿Ha estado él comiendo?</td>
-            </tr>
-            <tr>
-                <td><strong>11. Pas. Perf. Cont.</strong></td>
-                <td>Pasado perfecto (<span class="key-word">had</span>) + puente <span class="key-word">been</span> + <span class="key-word">-ing</span>.</td>
-                <td>I <span class="key-word">had been</span> eating.<br>I <span class="key-word">hadn't been</span> eating.<br><span class="key-word">Had</span> you <span class="key-word">been</span> eating?</td>
-                <td>Había estado comiendo.<br>No había estado.<br>¿Habías estado?</td>
-                <td>He <span class="key-word">had been</span> eating.<br>He <span class="key-word">hadn't been</span> eating.<br><span class="key-word">Had</span> he <span class="key-word">been</span> eating?</td>
-                <td>Él había estado comiendo.<br>Él no había estado.<br>¿Había él estado?</td>
-            </tr>
-            <tr>
-                <td><strong>12. Fut. Perf. Cont.</strong></td>
-                <td>Futuro perfecto (<span class="key-word">will have</span>) + puente <span class="key-word">been</span> + <span class="key-word">-ing</span>.</td>
-                <td>I <span class="key-word">will have been</span> eating.<br>I <span class="key-word">won't have been</span> eating.<br><span class="key-word">Will</span> you <span class="key-word">have been</span> eating?</td>
-                <td>Habré estado comiendo.<br>No habré estado.<br>¿Habrás estado?</td>
-                <td>He <span class="key-word">will have been</span> eating.<br>He <span class="key-word">won't have been</span> eating.<br><span class="key-word">Will</span> he <span class="key-word">have been</span> eating?</td>
-                <td>Él habrá estado comiendo.<br>Él no habrá estado.<br>¿Habrá él estado?</td>
-            </tr>
-        </tbody>
-    </table>
+    // 2. Pasado Simple
+    html += `<tr>
+        <td><strong>2. Pasado Simple</strong></td>
+        <td>Usa <span class="key-word">did</span> universal. Afirmativa usa pasado (<span class="key-word">${past}</span>).</td>
+        <td>I <span class="key-word">${past}</span>.<br>I <span class="key-word">didn't</span> ${v}.<br><span class="key-word">Did</span> you ${v}?</td>
+        <td>Yo ${past} (pasado).<br>No ${v}.<br>¿${v}?</td>
+        <td>He <span class="key-word">${past}</span>.<br>He <span class="key-word">didn't</span> ${v}.<br><span class="key-word">Did</span> he ${v}?</td>
+        <td>Él ${past}.<br>Él no.<br>¿Él?</td>
+    </tr>`;
+
+    // 3. Futuro Simple
+    html += `<tr>
+        <td><strong>3. Futuro Simple</strong></td>
+        <td>Usa <span class="key-word">will</span> universal + verbo base.</td>
+        <td>I <span class="key-word">will</span> ${v}.<br>I <span class="key-word">won't</span> ${v}.<br><span class="key-word">Will</span> you ${v}?</td>
+        <td>${v}ré.<br>No ${v}ré.<br>¿${v}rás?</td>
+        <td>He <span class="key-word">will</span> ${v}.<br>He <span class="key-word">won't</span> ${v}.<br><span class="key-word">Will</span> he ${v}?</td>
+        <td>Él ${v}rá.<br>Él no.<br>¿Él?</td>
+    </tr>`;
+
+    // 4. Presente Continuo
+    html += `<tr>
+        <td><strong>4. Presente Continuo</strong></td>
+        <td>Verbo <em>be</em> (<span class="key-word">am/is/are</span>) + <span class="key-word">${ing}</span>.</td>
+        <td>I <span class="key-word">am</span> ${ing}.<br>I <span class="key-word">aren't</span> ${ing}.<br><span class="key-word">Are</span> you ${ing}?</td>
+        <td>Estoy ${ing}.<br>No estoy.<br>¿Estás?</td>
+        <td>He <span class="key-word">is</span> ${ing}.<br>He <span class="key-word">isn't</span> ${ing}.<br><span class="key-word">Is</span> he ${ing}?</td>
+        <td>Él está ${ing}.<br>Él no.<br>¿Está él?</td>
+    </tr>`;
+
+    // 5. Pasado Continuo
+    html += `<tr>
+        <td><strong>5. Pasado Continuo</strong></td>
+        <td>Verbo <em>be</em> pasado (<span class="key-word">was/were</span>) + <span class="key-word">${ing}</span>.</td>
+        <td>I <span class="key-word">was</span> ${ing}.<br>I <span class="key-word">wasn't</span> ${ing}.<br><span class="key-word">Were</span> you ${ing}?</td>
+        <td>Estaba ${ing}.<br>No estaba.<br>¿Estabas?</td>
+        <td>He <span class="key-word">was</span> ${ing}.<br>He <span class="key-word">wasn't</span> ${ing}.<br><span class="key-word">Was</span> he ${ing}?</td>
+        <td>Él estaba.<br>Él no.<br>¿Estaba él?</td>
+    </tr>`;
+
+    // 6. Futuro Continuo
+    html += `<tr>
+        <td><strong>6. Futuro Continuo</strong></td>
+        <td>Futuro <span class="key-word">will be</span> + <span class="key-word">${ing}</span>.</td>
+        <td>I <span class="key-word">will be</span> ${ing}.<br>I <span class="key-word">won't be</span> ${ing}.<br><span class="key-word">Will</span> you <span class="key-word">be</span> ${ing}?</td>
+        <td>Estaré ${ing}.<br>No estaré.<br>¿Estarás?</td>
+        <td>He <span class="key-word">will be</span> ${ing}.<br>He <span class="key-word">won't be</span> ${ing}.<br><span class="key-word">Will</span> he <span class="key-word">be</span> ${ing}?</td>
+        <td>Él estará.<br>Él no.<br>¿Estará él?</td>
+    </tr>`;
+
+    // 7. Presente Perfecto
+    html += `<tr>
+        <td><strong>7. Presente Perfecto</strong></td>
+        <td>Motor <span class="key-word">have/has</span> + participio (<span class="key-word">${part}</span>).</td>
+        <td>I <span class="key-word">have</span> ${part}.<br>I <span class="key-word">haven't</span> ${part}.<br><span class="key-word">Have</span> you ${part}?</td>
+        <td>He ${part}.<br>No he.<br>¿Has ${part}?</td>
+        <td>He <span class="key-word">has</span> ${part}.<br>He <span class="key-word">hasn't</span> ${part}.<br><span class="key-word">Has</span> he ${part}?</td>
+        <td>Él ha ${part}.<br>Él no.<br>¿Ha él?</td>
+    </tr>`;
+
+    // 8. Pasado Perfecto
+    html += `<tr>
+        <td><strong>8. Pasado Perfecto</strong></td>
+        <td>Motor <span class="key-word">had</span> + participio (<span class="key-word">${part}</span>).</td>
+        <td>I <span class="key-word">had</span> ${part}.<br>I <span class="key-word">hadn't</span> ${part}.<br><span class="key-word">Had</span> you ${part}?</td>
+        <td>Había ${part}.<br>No había.<br>¿Habías?</td>
+        <td>He <span class="key-word">had</span> ${part}.<br>He <span class="key-word">hadn't</span> ${part}.<br><span class="key-word">Had</span> he ${part}?</td>
+        <td>Él había.<br>Él no.<br>¿Había él?</td>
+    </tr>`;
+
+    // 9. Futuro Perfecto
+    html += `<tr>
+        <td><strong>9. Futuro Perfecto</strong></td>
+        <td>Futuro <span class="key-word">will have</span> + participio (<span class="key-word">${part}</span>).</td>
+        <td>I <span class="key-word">will have</span> ${part}.<br>I <span class="key-word">won't have</span> ${part}.<br><span class="key-word">Will</span> you <span class="key-word">have</span> ${part}?</td>
+        <td>Habré ${part}.<br>No habré.<br>¿Habrás?</td>
+        <td>He <span class="key-word">will have</span> ${part}.<br>He <span class="key-word">won't have</span> ${part}.<br><span class="key-word">Will</span> he <span class="key-word">have</span> ${part}?</td>
+        <td>Él habrá.<br>Él no.<br>¿Habrá él?</td>
+    </tr>`;
+
+    // 10. Presente Perfecto Continuo
+    html += `<tr>
+        <td><strong>10. Pres. Perf. Cont.</strong></td>
+        <td>Perfecto (<span class="key-word">have/has</span>) + puente <span class="key-word">been</span> + <span class="key-word">${ing}</span>.</td>
+        <td>I <span class="key-word">have been</span> ${ing}.<br>I <span class="key-word">haven't been</span> ${ing}.<br><span class="key-word">Have</span> you <span class="key-word">been</span> ${ing}?</td>
+        <td>He estado ${ing}.<br>No he estado.<br>¿Has estado?</td>
+        <td>He <span class="key-word">has been</span> ${ing}.<br>He <span class="key-word">hasn't been</span> ${ing}.<br><span class="key-word">Has</span> he <span class="key-word">been</span> ${ing}?</td>
+        <td>Él ha estado.<br>Él no.<br>¿Ha estado él?</td>
+    </tr>`;
+
+    // 11. Pasado Perfecto Continuo
+    html += `<tr>
+        <td><strong>11. Pas. Perf. Cont.</strong></td>
+        <td>Pasado perfecto (<span class="key-word">had</span>) + puente <span class="key-word">been</span> + <span class="key-word">${ing}</span>.</td>
+        <td>I <span class="key-word">had been</span> ${ing}.<br>I <span class="key-word">hadn't been</span> ${ing}.<br><span class="key-word">Had</span> you <span class="key-word">been</span> ${ing}?</td>
+        <td>Había estado ${ing}.<br>No había estado.<br>¿Habías estado?</td>
+        <td>He <span class="key-word">had been</span> ${ing}.<br>He <span class="key-word">hadn't been</span> ${ing}.<br><span class="key-word">Had</span> he <span class="key-word">been</span> ${ing}?</td>
+        <td>Él había estado.<br>Él no.<br>¿Había él?</td>
+    </tr>`;
+
+    // 12. Futuro Perfecto Continuo
+    html += `<tr>
+        <td><strong>12. Fut. Perf. Cont.</strong></td>
+        <td>Futuro perfecto (<span class="key-word">will have</span>) + puente <span class="key-word">been</span> + <span class="key-word">${ing}</span>.</td>
+        <td>I <span class="key-word">will have been</span> ${ing}.<br>I <span class="key-word">won't have been</span> ${ing}.<br><span class="key-word">Will</span> you <span class="key-word">have been</span> ${ing}?</td>
+        <td>Habré estado ${ing}.<br>No habré estado.<br>¿Habrás estado?</td>
+        <td>He <span class="key-word">will have been</span> ${ing}.<br>He <span class="key-word">won't have been</span> ${ing}.<br><span class="key-word">Will</span> he <span class="key-word">have been</span> ${ing}?</td>
+        <td>Él habrá estado.<br>Él no.<br>¿Habrá él?</td>
+    </tr>`;
+
+    html += `</tbody></table>`;
+    document.getElementById('tableContainer').innerHTML = html;
+}
+
+// Cargar la tabla inicial al abrir
+generateTable();
+</script>
 
 </body>
 </html>
