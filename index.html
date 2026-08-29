@@ -5,13 +5,14 @@
     <title>Generador Dinámico de los 12 Tiempos del Inglés</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; color: #333; line-height: 1.3; background-color: #f4f6f7; }
-        .container { max-width: 1000px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .container { max-width: 1050px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         h1 { text-align: center; color: #2c3e50; font-size: 24px; margin-bottom: 5px; }
         p.subtitle { text-align: center; color: #7f8c8d; margin-bottom: 20px; font-size: 14px; }
         
-        .control-box { background: #ecf0f1; padding: 15px; border-radius: 6px; margin-bottom: 20px; display: flex; gap: 15px; align-items: center; justify-content: center; flex-wrap: wrap; }
-        .control-box input, .control-box select, .control-box button { padding: 8px 12px; font-size: 14px; border: 1px solid #bdc3c7; border-radius: 4px; }
-        .control-box button { background: #2980b9; color: white; border: none; cursor: pointer; font-weight: bold; }
+        .control-box { background: #ecf0f1; padding: 15px; border-radius: 6px; margin-bottom: 20px; display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap; }
+        .control-box div { display: flex; flex-direction: column; font-size: 12px; }
+        .control-box input, .control-box select, .control-box button { padding: 8px 10px; font-size: 13px; border: 1px solid #bdc3c7; border-radius: 4px; }
+        .control-box button { background: #2980b9; color: white; border: none; cursor: pointer; font-weight: bold; height: 35px; align-self: flex-end; }
         .control-box button:hover { background: #2471a3; }
 
         table { width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 11px; }
@@ -25,60 +26,74 @@
 
 <div class="container">
     <h1>Generador Dinámico de los 12 Tiempos del Inglés</h1>
-    <p class="subtitle">Escribe un verbo en inglés, selecciona su tipo y observa cómo cambian los 12 tiempos automáticamente.</p>
+    <p class="subtitle">Elige un pronombre, un verbo y observa la conjugación con traducciones naturales.</p>
 
     <div class="control-box">
         <div>
+            <label for="pronounSelect"><strong>Pronombre (Sujeto):</strong></label>
+            <select id="pronounSelect" onchange="generateTable()">
+                <option value="I">I (Yo)</option>
+                <option value="He">He (Él)</option>
+                <option value="She">She (Ella)</option>
+                <option value="They">They (Ellos)</option>
+            </select>
+        </div>
+        <div>
             <label for="verbInput"><strong>Verbo (Base):</strong></label>
-            <input type="text" id="verbInput" value="work" placeholder="ej. play, write, go">
+            <input type="text" id="verbInput" value="eat" placeholder="ej. eat, write, work">
+        </div>
+        <div>
+            <label for="complementInput"><strong>Complemento:</strong></label>
+            <input type="text" id="complementInput" value="an apple" placeholder="ej. an apple, a letter">
         </div>
         <div>
             <label for="verbType"><strong>Tipo:</strong></label>
             <select id="verbType">
                 <option value="regular">Regular</option>
-                <option value="irregular">Irregular</option>
+                <option value="irregular" selected>Irregular</option>
             </select>
         </div>
         <div>
-            <label for="pastForm"><strong>Pasado (si es irregular):</strong></label>
-            <input type="text" id="pastForm" value="worked" placeholder="ej. ate, wrote">
+            <label for="pastForm"><strong>Pasado:</strong></label>
+            <input type="text" id="pastForm" value="ate">
         </div>
         <div>
-            <label for="partForm"><strong>Participio (si es irregular):</strong></label>
-            <input type="text" id="partForm" value="worked" placeholder="ej. eaten, written">
+            <label for="partForm"><strong>Participio:</strong></label>
+            <input type="text" id="partForm" value="eaten">
         </div>
-        <button onclick="generateTable()">Generar Tiempos</button>
+        <button onclick="generateTable()">Actualizar</button>
     </div>
 
-    <div id="tableContainer">
-        <!-- La tabla se generará dinámicamente aquí -->
-    </div>
+    <div id="tableContainer"></div>
 </div>
 
 <script>
-// Base de datos rápida para algunos irregulares comunes si el usuario quiere probar
-const irregulars = {
-    "eat": { past: "ate", part: "eaten", trad: "comer fruta" },
-    "go": { past: "went", part: "gone", trad: "ir a casa" },
-    "write": { past: "wrote", part: "written", trad: "escribir una carta" },
-    "play": { past: "played", part: "played", trad: "jugar fútbol" }
+// Base de datos de apoyo para verbos comunes con sus pasados, participios y traducciones base
+const verbsData = {
+    "eat": { past: "ate", part: "eaten", es: "comer", objEs: "una manzana" },
+    "write": { past: "wrote", part: "written", es: "escribir", objEs: "una carta" },
+    "work": { past: "worked", part: "worked", es: "trabajar", objEs: "aquí" },
+    "play": { past: "played", part: "played", es: "jugar", objEs: "fútbol" },
+    "read": { past: "read", part: "read", es: "leer", objEs: "un libro" }
 };
 
 document.getElementById('verbInput').addEventListener('input', function(e) {
     let v = e.target.value.toLowerCase().trim();
-    if(irregulars[v]) {
-        document.getElementById('verbType').value = "irregular";
-        document.getElementById('pastForm').value = irregulars[v].past;
-        document.getElementById('partForm').value = irregulars[v].part;
-    } else {
-        document.getElementById('verbType').value = "regular";
-        document.getElementById('pastForm').value = v + "ed";
-        document.getElementById('partForm').value = v + "ed";
+    if(verbsData[v]) {
+        document.getElementById('verbType').value = (v === 'work' || v === 'play') ? 'regular' : 'irregular';
+        document.getElementById('pastForm').value = verbsData[v].past;
+        document.getElementById('partForm').value = verbsData[v].part;
+        if(v === 'work') document.getElementById('complementInput').value = "here";
+        if(v === 'play') document.getElementById('complementInput').value = "soccer";
+        if(v === 'write') document.getElementById('complementInput').value = "a letter";
+        if(v === 'eat') document.getElementById('complementInput').value = "an apple";
     }
 });
 
 function generateTable() {
-    let v = document.getElementById('verbInput').value.trim() || "work";
+    let pronoun = document.getElementById('pronounSelect').value;
+    let v = document.getElementById('verbInput').value.trim() || "eat";
+    let comp = document.getElementById('complementInput').value.trim();
     let type = document.getElementById('verbType').value;
     let past = document.getElementById('pastForm').value.trim();
     let part = document.getElementById('partForm').value.trim();
@@ -88,23 +103,43 @@ function generateTable() {
         part = v + "ed";
     }
 
-    let ing = v.endsWith('e') ? v.slice(0, -1) + "ing" : v + "ing";
-    let thirdS = v + "s";
-    if(v.endsWith('y') && !['a','e','i','o','u'].includes(v[v.length-2])) {
-        thirdS = v.slice(0, -1) + "ies";
-    } else if(v.endsWith('s') || v.endsWith('sh') || v.endsWith('ch') || v.endsWith('x') || v.endsWith('o')) {
-        thirdS = v + "es";
+    // Auxiliares según el pronombre
+    let doAux = (pronoun === "He" || pronoun === "She") ? "does" : "do";
+    let dontAux = (pronoun === "He" || pronoun === "She") ? "doesn't" : "don't";
+    let haveAux = (pronoun === "He" || pronoun === "She") ? "has" : "have";
+    let haventAux = (pronoun === "He" || pronoun === "She") ? "hasn't" : "haven't";
+    
+    let bePres = (pronoun === "I") ? "am" : (pronoun === "He" || pronoun === "She") ? "is" : "are";
+    let bePresNot = (pronoun === "I") ? "'m not" : (pronoun === "He" || pronoun === "She") ? "isn't" : "aren't";
+    let bePast = (pronoun === "I" || pronoun === "He" || pronoun === "She") ? "was" : "were";
+    let bePastNot = (pronoun === "I" || pronoun === "He" || pronoun === "She") ? "wasn't" : "weren't";
+
+    // Conjugación del verbo principal en presente para 3ra persona
+    let verbPresent = v;
+    if(pronoun === "He" || pronoun === "She") {
+        if(v.endsWith('y') && !['a','e','i','o','u'].includes(v[v.length-2])) {
+            verbPresent = v.slice(0, -1) + "ies";
+        } else if(v.endsWith('s') || v.endsWith('sh') || v.endsWith('ch') || v.endsWith('x') || v.endsWith('o')) {
+            verbPresent = v + "es";
+        } else {
+            verbPresent = v + "s";
+        }
     }
+
+    let ing = v.endsWith('e') && !v.endsWith('ee') ? v.slice(0, -1) + "ing" : v + "ing";
+
+    // Textos en español según el pronombre seleccionado
+    let pEs = pronoun === "I" ? "Yo" : pronoun === "He" ? "Él" : pronoun === "She" ? "Ella" : "Ellos";
+    let verbEs = verbsData[v] ? verbsData[v].es : "realizar acción";
+    let objEs = comp; // Mantiene el complemento de referencia
 
     let html = `<table>
         <thead>
             <tr>
                 <th>Tiempo</th>
                 <th>Regla Clave</th>
-                <th>1ª Persona (I)</th>
-                <th>Traducción (1ª)</th>
-                <th>3ª Persona (He)</th>
-                <th>Traducción (3ª)</th>
+                <th>Estructura (${pronoun})</th>
+                <th>Traducción Natural</th>
             </tr>
         </thead>
         <tbody>`;
@@ -112,128 +147,104 @@ function generateTable() {
     // 1. Presente Simple
     html += `<tr>
         <td><strong>1. Presente Simple</strong></td>
-        <td>Usa <span class="key-word">do/does</span>. 3ª persona lleva <span class="key-word">-s</span>.</td>
-        <td>I ${v} now.<br>I <span class="key-word">don't</span> ${v}.<br><span class="key-word">Do</span> you ${v}?</td>
-        <td>Yo ${v} ahora.<br>No ${v}.<br>¿Tú ${v}?</td>
-        <td>He ${thirdS}.<br>He <span class="key-word">doesn't</span> ${v}.<br><span class="key-word">Does</span> he ${v}?</td>
-        <td>Él ${v}.<br>Él no ${v}.<br>¿Él ${v}?</td>
+        <td>Usa <span class="key-word">do/does</span>. 3ª persona añade <span class="key-word">-s</span>.</td>
+        <td>(+) ${pronoun} ${verbPresent} ${comp}.<br>(-) ${pronoun} <span class="key-word">${dontAux}</span> ${v} ${comp}.<br>(?) <span class="key-word">${doAux.toUpperCase()}</span> ${pronoun} ${v} ${comp}?</td>
+        <td>${pEs} ${verbEs} ${objEs}.<br>${pEs} no ${verbEs} ${objEs}.<br>¿${pEs} ${verbEs} ${objEs}?</td>
     </tr>`;
 
     // 2. Pasado Simple
     html += `<tr>
         <td><strong>2. Pasado Simple</strong></td>
-        <td>Usa <span class="key-word">did</span> universal. Afirmativa usa pasado (<span class="key-word">${past}</span>).</td>
-        <td>I <span class="key-word">${past}</span>.<br>I <span class="key-word">didn't</span> ${v}.<br><span class="key-word">Did</span> you ${v}?</td>
-        <td>Yo ${past} (pasado).<br>No ${v}.<br>¿${v}?</td>
-        <td>He <span class="key-word">${past}</span>.<br>He <span class="key-word">didn't</span> ${v}.<br><span class="key-word">Did</span> he ${v}?</td>
-        <td>Él ${past}.<br>Él no.<br>¿Él?</td>
+        <td>Usa <span class="key-word">did</span> para negar/preguntar. Afirmativa usa pasado (<span class="key-word">${past}</span>).</td>
+        <td>(+) ${pronoun} <span class="key-word">${past}</span> ${comp}.<br>(-) ${pronoun} <span class="key-word">didn't</span> ${v} ${comp}.<br>(?) <span class="key-word">Did</span> ${pronoun} ${v} ${comp}?</td>
+        <td>${pEs} ${verbEs}ó/ía ${objEs} (ayer).<br>${pEs} no ${verbEs}ó.<br>¿${pEs} ${verbEs}ó?</td>
     </tr>`;
 
     // 3. Futuro Simple
     html += `<tr>
         <td><strong>3. Futuro Simple</strong></td>
         <td>Usa <span class="key-word">will</span> universal + verbo base.</td>
-        <td>I <span class="key-word">will</span> ${v}.<br>I <span class="key-word">won't</span> ${v}.<br><span class="key-word">Will</span> you ${v}?</td>
-        <td>${v}ré.<br>No ${v}ré.<br>¿${v}rás?</td>
-        <td>He <span class="key-word">will</span> ${v}.<br>He <span class="key-word">won't</span> ${v}.<br><span class="key-word">Will</span> he ${v}?</td>
-        <td>Él ${v}rá.<br>Él no.<br>¿Él?</td>
+        <td>(+) ${pronoun} <span class="key-word">will</span> ${v} ${comp}.<br>(-) ${pronoun} <span class="key-word">won't</span> ${v} ${comp}.<br>(?) <span class="key-word">Will</span> ${pronoun} ${v} ${comp}?</td>
+        <td>${pEs} ${verbEs}á ${objEs} (mañana).<br>${pEs} no ${verbEs}á.<br>¿${pEs} ${verbEs}á?</td>
     </tr>`;
 
     // 4. Presente Continuo
     html += `<tr>
         <td><strong>4. Presente Continuo</strong></td>
         <td>Verbo <em>be</em> (<span class="key-word">am/is/are</span>) + <span class="key-word">${ing}</span>.</td>
-        <td>I <span class="key-word">am</span> ${ing}.<br>I <span class="key-word">aren't</span> ${ing}.<br><span class="key-word">Are</span> you ${ing}?</td>
-        <td>Estoy ${ing}.<br>No estoy.<br>¿Estás?</td>
-        <td>He <span class="key-word">is</span> ${ing}.<br>He <span class="key-word">isn't</span> ${ing}.<br><span class="key-word">Is</span> he ${ing}?</td>
-        <td>Él está ${ing}.<br>Él no.<br>¿Está él?</td>
+        <td>(+) ${pronoun} <span class="key-word">${bePres}</span> ${ing} ${comp}.<br>(-) ${pronoun} <span class="key-word">${bePresNot}</span> ${ing} ${comp}.<br>(?) <span class="key-word">${bePres.charAt(0).toUpperCase() + bePres.slice(1)}</span> ${pronoun} ${ing} ${comp}?</td>
+        <td>${pEs} está ${verbEs}ndo ${objEs}.<br>${pEs} no está ${verbEs}ndo.<br>¿Está ${pEs} ${verbEs}ndo?</td>
     </tr>`;
 
     // 5. Pasado Continuo
     html += `<tr>
         <td><strong>5. Pasado Continuo</strong></td>
         <td>Verbo <em>be</em> pasado (<span class="key-word">was/were</span>) + <span class="key-word">${ing}</span>.</td>
-        <td>I <span class="key-word">was</span> ${ing}.<br>I <span class="key-word">wasn't</span> ${ing}.<br><span class="key-word">Were</span> you ${ing}?</td>
-        <td>Estaba ${ing}.<br>No estaba.<br>¿Estabas?</td>
-        <td>He <span class="key-word">was</span> ${ing}.<br>He <span class="key-word">wasn't</span> ${ing}.<br><span class="key-word">Was</span> he ${ing}?</td>
-        <td>Él estaba.<br>Él no.<br>¿Estaba él?</td>
+        <td>(+) ${pronoun} <span class="key-word">${bePast}</span> ${ing} ${comp}.<br>(-) ${pronoun} <span class="key-word">${bePastNot}</span> ${ing} ${comp}.<br>(?) <span class="key-word">${bePast.charAt(0).toUpperCase() + bePast.slice(1)}</span> ${pronoun} ${ing} ${comp}?</td>
+        <td>${pEs} estaba ${verbEs}ndo ${objEs}.<br>${pEs} no estaba ${verbEs}ndo.<br>¿Estaba ${pEs} ${verbEs}ndo?</td>
     </tr>`;
 
     // 6. Futuro Continuo
     html += `<tr>
         <td><strong>6. Futuro Continuo</strong></td>
         <td>Futuro <span class="key-word">will be</span> + <span class="key-word">${ing}</span>.</td>
-        <td>I <span class="key-word">will be</span> ${ing}.<br>I <span class="key-word">won't be</span> ${ing}.<br><span class="key-word">Will</span> you <span class="key-word">be</span> ${ing}?</td>
-        <td>Estaré ${ing}.<br>No estaré.<br>¿Estarás?</td>
-        <td>He <span class="key-word">will be</span> ${ing}.<br>He <span class="key-word">won't be</span> ${ing}.<br><span class="key-word">Will</span> he <span class="key-word">be</span> ${ing}?</td>
-        <td>Él estará.<br>Él no.<br>¿Estará él?</td>
+        <td>(+) ${pronoun} <span class="key-word">will be</span> ${ing} ${comp}.<br>(-) ${pronoun} <span class="key-word">won't be</span> ${ing} ${comp}.<br>(?) <span class="key-word">Will</span> ${pronoun} <span class="key-word">be</span> ${ing} ${comp}?</td>
+        <td>${pEs} estará ${verbEs}ndo ${objEs}.<br>${pEs} no estará ${verbEs}ndo.<br>¿Estará ${pEs} ${verbEs}ndo?</td>
     </tr>`;
 
     // 7. Presente Perfecto
     html += `<tr>
         <td><strong>7. Presente Perfecto</strong></td>
         <td>Motor <span class="key-word">have/has</span> + participio (<span class="key-word">${part}</span>).</td>
-        <td>I <span class="key-word">have</span> ${part}.<br>I <span class="key-word">haven't</span> ${part}.<br><span class="key-word">Have</span> you ${part}?</td>
-        <td>He ${part}.<br>No he.<br>¿Has ${part}?</td>
-        <td>He <span class="key-word">has</span> ${part}.<br>He <span class="key-word">hasn't</span> ${part}.<br><span class="key-word">Has</span> he ${part}?</td>
-        <td>Él ha ${part}.<br>Él no.<br>¿Ha él?</td>
+        <td>(+) ${pronoun} <span class="key-word">${haveAux}</span> ${part} ${comp}.<br>(-) ${pronoun} <span class="key-word">${haventAux}</span> ${part} ${comp}.<br>(?) <span class="key-word">${haveAux.charAt(0).toUpperCase() + haveAux.slice(1)}</span> ${pronoun} ${part} ${comp}?</td>
+        <td>${pEs} ha ${verbEs}do ${objEs}.<br>${pEs} no ha ${verbEs}do.<br>¿Ha ${pEs} ${verbEs}do?</td>
     </tr>`;
 
     // 8. Pasado Perfecto
     html += `<tr>
         <td><strong>8. Pasado Perfecto</strong></td>
         <td>Motor <span class="key-word">had</span> + participio (<span class="key-word">${part}</span>).</td>
-        <td>I <span class="key-word">had</span> ${part}.<br>I <span class="key-word">hadn't</span> ${part}.<br><span class="key-word">Had</span> you ${part}?</td>
-        <td>Había ${part}.<br>No había.<br>¿Habías?</td>
-        <td>He <span class="key-word">had</span> ${part}.<br>He <span class="key-word">hadn't</span> ${part}.<br><span class="key-word">Had</span> he ${part}?</td>
-        <td>Él había.<br>Él no.<br>¿Había él?</td>
+        <td>(+) ${pronoun} <span class="key-word">had</span> ${part} ${comp}.<br>(-) ${pronoun} <span class="key-word">hadn't</span> ${part} ${comp}.<br>(?) <span class="key-word">Had</span> ${pronoun} ${part} ${comp}?</td>
+        <td>${pEs} había ${verbEs}do ${objEs}.<br>${pEs} no había ${verbEs}do.<br>¿Había ${pEs} ${verbEs}do?</td>
     </tr>`;
 
     // 9. Futuro Perfecto
     html += `<tr>
         <td><strong>9. Futuro Perfecto</strong></td>
         <td>Futuro <span class="key-word">will have</span> + participio (<span class="key-word">${part}</span>).</td>
-        <td>I <span class="key-word">will have</span> ${part}.<br>I <span class="key-word">won't have</span> ${part}.<br><span class="key-word">Will</span> you <span class="key-word">have</span> ${part}?</td>
-        <td>Habré ${part}.<br>No habré.<br>¿Habrás?</td>
-        <td>He <span class="key-word">will have</span> ${part}.<br>He <span class="key-word">won't have</span> ${part}.<br><span class="key-word">Will</span> he <span class="key-word">have</span> ${part}?</td>
-        <td>Él habrá.<br>Él no.<br>¿Habrá él?</td>
+        <td>(+) ${pronoun} <span class="key-word">will have</span> ${part} ${comp}.<br>(-) ${pronoun} <span class="key-word">won't have</span> ${part} ${comp}.<br>(?) <span class="key-word">Will</span> ${pronoun} <span class="key-word">have</span> ${part} ${comp}?</td>
+        <td>${pEs} habrá ${verbEs}do ${objEs}.<br>${pEs} no habrá ${verbEs}do.<br>¿Habrá ${pEs} ${verbEs}do?</td>
     </tr>`;
 
     // 10. Presente Perfecto Continuo
     html += `<tr>
         <td><strong>10. Pres. Perf. Cont.</strong></td>
         <td>Perfecto (<span class="key-word">have/has</span>) + puente <span class="key-word">been</span> + <span class="key-word">${ing}</span>.</td>
-        <td>I <span class="key-word">have been</span> ${ing}.<br>I <span class="key-word">haven't been</span> ${ing}.<br><span class="key-word">Have</span> you <span class="key-word">been</span> ${ing}?</td>
-        <td>He estado ${ing}.<br>No he estado.<br>¿Has estado?</td>
-        <td>He <span class="key-word">has been</span> ${ing}.<br>He <span class="key-word">hasn't been</span> ${ing}.<br><span class="key-word">Has</span> he <span class="key-word">been</span> ${ing}?</td>
-        <td>Él ha estado.<br>Él no.<br>¿Ha estado él?</td>
+        <td>(+) ${pronoun} <span class="key-word">${haveAux} been</span> ${ing} ${comp}.<br>(-) ${pronoun} <span class="key-word">${haventAux} been</span> ${ing} ${comp}.<br>(?) <span class="key-word">${haveAux.charAt(0).toUpperCase() + haveAux.slice(1)}</span> ${pronoun} <span class="key-word">been</span> ${ing} ${comp}?</td>
+        <td>${pEs} ha estado ${verbEs}ndo.<br>${pEs} no ha estado ${verbEs}ndo.<br>¿Ha estado ${pEs} ${verbEs}ndo?</td>
     </tr>`;
 
     // 11. Pasado Perfecto Continuo
     html += `<tr>
         <td><strong>11. Pas. Perf. Cont.</strong></td>
         <td>Pasado perfecto (<span class="key-word">had</span>) + puente <span class="key-word">been</span> + <span class="key-word">${ing}</span>.</td>
-        <td>I <span class="key-word">had been</span> ${ing}.<br>I <span class="key-word">hadn't been</span> ${ing}.<br><span class="key-word">Had</span> you <span class="key-word">been</span> ${ing}?</td>
-        <td>Había estado ${ing}.<br>No había estado.<br>¿Habías estado?</td>
-        <td>He <span class="key-word">had been</span> ${ing}.<br>He <span class="key-word">hadn't been</span> ${ing}.<br><span class="key-word">Had</span> he <span class="key-word">been</span> ${ing}?</td>
-        <td>Él había estado.<br>Él no.<br>¿Había él?</td>
+        <td>(+) ${pronoun} <span class="key-word">had been</span> ${ing} ${comp}.<br>(-) ${pronoun} <span class="key-word">hadn't been</span> ${ing} ${comp}.<br>(?) <span class="key-word">Had</span> ${pronoun} <span class="key-word">been</span> ${ing} ${comp}?</td>
+        <td>${pEs} había estado ${verbEs}ndo.<br>${pEs} no había estado.<br>¿Había estado ${pEs}?</td>
     </tr>`;
 
     // 12. Futuro Perfecto Continuo
     html += `<tr>
         <td><strong>12. Fut. Perf. Cont.</strong></td>
         <td>Futuro perfecto (<span class="key-word">will have</span>) + puente <span class="key-word">been</span> + <span class="key-word">${ing}</span>.</td>
-        <td>I <span class="key-word">will have been</span> ${ing}.<br>I <span class="key-word">won't have been</span> ${ing}.<br><span class="key-word">Will</span> you <span class="key-word">have been</span> ${ing}?</td>
-        <td>Habré estado ${ing}.<br>No habré estado.<br>¿Habrás estado?</td>
-        <td>He <span class="key-word">will have been</span> ${ing}.<br>He <span class="key-word">won't have been</span> ${ing}.<br><span class="key-word">Will</span> he <span class="key-word">have been</span> ${ing}?</td>
-        <td>Él habrá estado.<br>Él no.<br>¿Habrá él?</td>
+        <td>(+) ${pronoun} <span class="key-word">will have been</span> ${ing} ${comp}.<br>(-) ${pronoun} <span class="key-word">won't have been</span> ${ing} ${comp}.<br>(?) <span class="key-word">Will</span> ${pronoun} <span class="key-word">have been</span> ${ing} ${comp}?</td>
+        <td>${pEs} habrá estado ${verbEs}ndo.<br>${pEs} no habrá estado.<br>¿Habrá estado ${pEs}?</td>
     </tr>`;
 
     html += `</tbody></table>`;
     document.getElementById('tableContainer').innerHTML = html;
 }
 
-// Cargar la tabla inicial al abrir
+// Cargar la tabla inicial
 generateTable();
 </script>
 
